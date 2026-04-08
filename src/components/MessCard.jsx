@@ -2,8 +2,6 @@ import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-
-
 const MessCard = ({  image, name, rating, price, isVeg  }) => {
   return (
     <div className="bg-card rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden group min-w-[280px]">

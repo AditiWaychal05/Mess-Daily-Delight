@@ -1,12 +1,9 @@
-import * as React from "react";
-
+import * from "react";
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
 
-type ToasterToast = ToastProps & {
-  id: string;
-  title?;
+title?;
   description?;
   action?: ToastActionElement;
 };
@@ -25,12 +22,7 @@ function genId() {
   return count.toString();
 }
 
-type ActionType = typeof actionTypes;
-
-type Action =
-  | {
-      type: ActionType["ADD_TOAST"];
-      toast: ToasterToast;
+toast: ToasterToast;
     }
   | {
       type: ActionType["UPDATE_TOAST"];
@@ -45,11 +37,9 @@ type Action =
       toastId?: ToasterToast["id"];
     };
 
+const toastTimeouts = new Map<string, ReturnType>();
 
-
-const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
-
-const addToRemoveQueue = (toastId: string) => {
+const addToRemoveQueue = (toastId) => {
   if (toastTimeouts.has(toastId)) {
     return;
   }
@@ -128,8 +118,6 @@ function dispatch(action: Action) {
     listener(memoryState);
   });
 }
-
-type Toast = Omit<ToasterToast, "id">;
 
 function toast({  ...props  }) {
   const id = genId();
