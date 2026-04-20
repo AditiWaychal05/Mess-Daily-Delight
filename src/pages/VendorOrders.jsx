@@ -1,8 +1,11 @@
 import VendorLayout from "@/components/VendorLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Filter } from "lucide-react";
+import { useState } from "react";
+import { toast } from "@/components/ui/use-toast";
 
-const orders = [
+const initial = [
   { customer: "Rahul Sharma", meal: "Veg Thali", time: "12:30 PM", status: "Preparing" },
   { customer: "Priya Patel", meal: "Special Thali", time: "1:00 PM", status: "Preparing" },
   { customer: "Amit Kumar", meal: "Mini Thali", time: "1:15 PM", status: "Delivered" },
@@ -11,13 +14,27 @@ const orders = [
 ];
 
 const VendorOrders = () => {
+  const [orders, setOrders] = useState(initial);
+
+  const markDelivered = (i) => {
+    setOrders((prev) => prev.map((o, idx) => (idx === i ? { ...o, status: "Delivered" } : o)));
+    toast({ title: "Order marked delivered", description: orders[i].customer });
+  };
+
   return (
     <VendorLayout>
-      <div className="space-y-6">
-        <h1 className="font-heading text-2xl font-bold text-foreground">Orders</h1>
-        <Card className="shadow-card">
+      <div className="space-y-6 max-w-7xl">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-foreground">Orders</h1>
+            <p className="text-sm text-muted-foreground mt-1">Track and update today's deliveries.</p>
+          </div>
+          <Button variant="outline" className="rounded-xl gap-2"><Filter className="w-4 h-4" /> Filter</Button>
+        </div>
+
+        <Card className="rounded-2xl shadow-card border-border/60">
           <CardHeader>
-            <CardTitle className="font-heading">Today's Orders</CardTitle>
+            <CardTitle className="font-heading text-lg">Today's Orders</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -33,12 +50,12 @@ const VendorOrders = () => {
                 </thead>
                 <tbody>
                   {orders.map((order, i) => (
-                    <tr key={i} className="border-b border-border last:border-0">
-                      <td className="py-3 px-2 text-foreground">{order.customer}</td>
+                    <tr key={i} className="border-b border-border last:border-0 hover:bg-muted/40 transition-colors">
+                      <td className="py-3 px-2 text-foreground font-medium">{order.customer}</td>
                       <td className="py-3 px-2 text-foreground">{order.meal}</td>
                       <td className="py-3 px-2 text-muted-foreground">{order.time}</td>
                       <td className="py-3 px-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                           order.status === "Delivered" ? "bg-success/10 text-success" :
                           order.status === "In Transit" ? "bg-warning/10 text-warning" :
                           "bg-accent text-accent-foreground"
@@ -48,7 +65,7 @@ const VendorOrders = () => {
                       </td>
                       <td className="py-3 px-2">
                         {order.status !== "Delivered" && (
-                          <Button size="sm" variant="outline" className="rounded-xl text-xs">
+                          <Button size="sm" variant="outline" className="rounded-xl text-xs" onClick={() => markDelivered(i)}>
                             Mark Delivered
                           </Button>
                         )}
