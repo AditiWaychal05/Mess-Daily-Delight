@@ -6,51 +6,75 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { getSession, updateProfile } from "@/lib/auth";
+import { useTheme } from "@/hooks/use-theme";
 import { Bell, Moon, Mail, Lock, Save } from "lucide-react";
+
+const NOTIF_KEY = "messdaily-notif-prefs";
+
+const loadNotifs = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(NOTIF_KEY) || "null");
+    if (stored) return stored;
+  } catch {}
+  return { email: true, push: true, sms: false };
+};
 
 const VendorSettings = () => {
   const session = getSession() || { name: "", email: "" };
+  const { isDark, setTheme } = useTheme();
   const [profile, setProfile] = useState({
     name: session.name || "",
     email: session.email || "",
     bio: "Serving fresh homestyle meals since 2024.",
   });
   const [pwd, setPwd] = useState({ current: "", next: "", confirm: "" });
-  const [prefs, setPrefs] = useState({ email: true, push: true, sms: false, dark: false });
+  const [notifs, setNotifs] = useState(loadNotifs);
+
+  const updateNotif = (key, value) => {
+    const next = { ...notifs, [key]: value };
+    setNotifs(next);
+    localStorage.setItem(NOTIF_KEY, JSON.stringify(next));
+    toast.success(`${value ? "Enabled" : "Disabled"} ${key} notifications`);
+  };
+
+  const handleDarkToggle = (value) => {
+    setTheme(value ? "dark" : "light");
+    toast.success(`${value ? "Dark" : "Light"} mode activated`);
+  };
 
   const saveProfile = (e) => {
     e.preventDefault();
     updateProfile({ name: profile.name });
-    toast({ title: "Profile updated", description: "Your changes have been saved." });
+    toast.success("Profile updated", { description: "Your changes have been saved." });
   };
 
   const savePassword = (e) => {
     e.preventDefault();
     if (pwd.next !== pwd.confirm) {
-      toast({ title: "Passwords don't match", variant: "destructive" });
+      toast.error("Passwords don't match");
       return;
     }
     if (pwd.next.length < 6) {
-      toast({ title: "Password too short", description: "Use at least 6 characters.", variant: "destructive" });
+      toast.error("Password too short", { description: "Use at least 6 characters." });
       return;
     }
     updateProfile({ password: pwd.next });
     setPwd({ current: "", next: "", confirm: "" });
-    toast({ title: "Password changed", description: "Use your new password next time." });
+    toast.success("Password changed", { description: "Use your new password next time." });
   };
 
   return (
     <VendorLayout>
       <div className="space-y-6 max-w-4xl">
-        <div>
+        <div className="animate-fade-in">
           <h1 className="font-heading text-2xl font-bold text-foreground">Settings</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your profile, security and preferences.</p>
         </div>
 
         {/* Profile */}
-        <Card className="rounded-2xl shadow-card border-border/60">
+        <Card className="rounded-2xl shadow-card hover:shadow-card-hover transition-shadow border-border/60">
           <CardHeader>
             <CardTitle className="font-heading text-lg">Profile</CardTitle>
           </CardHeader>
@@ -79,7 +103,7 @@ const VendorSettings = () => {
                 <Label>Bio</Label>
                 <Textarea value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} className="rounded-xl min-h-[90px]" />
               </div>
-              <Button type="submit" className="rounded-xl gradient-orange text-primary-foreground shadow-card hover:shadow-card-hover gap-2">
+              <Button type="submit" className="rounded-xl gradient-orange text-primary-foreground shadow-card hover:shadow-card-hover gap-2 transition-all hover:scale-105">
                 <Save className="w-4 h-4" /> Save changes
               </Button>
             </form>
@@ -87,7 +111,7 @@ const VendorSettings = () => {
         </Card>
 
         {/* Password */}
-        <Card className="rounded-2xl shadow-card border-border/60">
+        <Card className="rounded-2xl shadow-card hover:shadow-card-hover transition-shadow border-border/60">
           <CardHeader>
             <CardTitle className="font-heading text-lg flex items-center gap-2"><Lock className="w-4 h-4 text-primary" /> Change password</CardTitle>
           </CardHeader>
@@ -113,16 +137,16 @@ const VendorSettings = () => {
         </Card>
 
         {/* Preferences */}
-        <Card className="rounded-2xl shadow-card border-border/60">
+        <Card className="rounded-2xl shadow-card hover:shadow-card-hover transition-shadow border-border/60">
           <CardHeader>
             <CardTitle className="font-heading text-lg">Preferences</CardTitle>
           </CardHeader>
           <CardContent className="divide-y divide-border">
             {[
-              { key: "email", icon: Mail, title: "Email notifications", desc: "Order updates and weekly reports." },
-              { key: "push", icon: Bell, title: "Push notifications", desc: "Real-time alerts on your device." },
-              { key: "sms", icon: Bell, title: "SMS alerts", desc: "Text messages for urgent updates." },
-              { key: "dark", icon: Moon, title: "Dark mode", desc: "Easier on the eyes in low light." },
+              { key: "email", icon: Mail, title: "Email notifications", desc: "Order updates and weekly reports.", value: notifs.email, onChange: (v) => updateNotif("email", v) },
+              { key: "push", icon: Bell, title: "Push notifications", desc: "Real-time alerts on your device.", value: notifs.push, onChange: (v) => updateNotif("push", v) },
+              { key: "sms", icon: Bell, title: "SMS alerts", desc: "Text messages for urgent updates.", value: notifs.sms, onChange: (v) => updateNotif("sms", v) },
+              { key: "dark", icon: Moon, title: "Dark mode", desc: "Easier on the eyes in low light.", value: isDark, onChange: handleDarkToggle },
             ].map((row) => (
               <div key={row.key} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
                 <div className="flex items-start gap-3">
@@ -134,7 +158,7 @@ const VendorSettings = () => {
                     <div className="text-xs text-muted-foreground">{row.desc}</div>
                   </div>
                 </div>
-                <Switch checked={prefs[row.key]} onCheckedChange={(v) => setPrefs({ ...prefs, [row.key]: v })} />
+                <Switch checked={row.value} onCheckedChange={row.onChange} />
               </div>
             ))}
           </CardContent>
