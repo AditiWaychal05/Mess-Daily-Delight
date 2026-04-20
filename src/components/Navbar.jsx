@@ -35,7 +35,7 @@ const Navbar = () => {
           <Link to="/" className="w-9 h-9 rounded-full bg-muted flex items-center justify-center hover:bg-accent transition-colors">
             <User className="w-4 h-4 text-muted-foreground" />
           </Link>
-          <Button size="sm" className="rounded-full">Sign In</Button>
+          <Button asChild size="sm" className="rounded-full"><Link to="/vendor/auth">Sign In</Link></Button>
         </div>
       </div>
     </nav>

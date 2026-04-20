@@ -1,7 +1,15 @@
 import { UtensilsCrossed } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { isAuthenticated } from "@/lib/auth";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleVendorClick = (e) => {
+    e.preventDefault();
+    navigate(isAuthenticated() ? "/vendor/dashboard" : "/vendor/auth");
+  };
+
   return (
     <footer className="bg-foreground text-primary-foreground py-12">
       <div className="container mx-auto px-4">
@@ -20,7 +28,7 @@ const Footer = () => {
             <div className="space-y-2 text-sm opacity-70">
               <Link to="/" className="block hover:opacity-100 transition-opacity">Browse Messes</Link>
               <Link to="/" className="block hover:opacity-100 transition-opacity">My Subscriptions</Link>
-              <Link to="/vendor" className="block hover:opacity-100 transition-opacity">For Vendors</Link>
+              <a href="/vendor/dashboard" onClick={handleVendorClick} className="block hover:opacity-100 transition-opacity cursor-pointer">For Vendors</a>
             </div>
           </div>
           <div>
