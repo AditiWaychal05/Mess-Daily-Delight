@@ -1,9 +1,10 @@
-import { LayoutDashboard, ClipboardList, DollarSign, CreditCard, Settings, ChevronLeft, UtensilsCrossed, LogOut } from "lucide-react";
+import { LayoutDashboard, ClipboardList, DollarSign, CreditCard, Settings, ChevronLeft, UtensilsCrossed, LogOut, BookOpen } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOut } from "@/lib/auth";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/vendor/dashboard" },
+  { icon: BookOpen, label: "Menu", path: "/vendor/menu" },
   { icon: ClipboardList, label: "Orders", path: "/vendor/orders" },
   { icon: DollarSign, label: "Earnings", path: "/vendor/earnings" },
   { icon: CreditCard, label: "Subscription", path: "/vendor/subscription" },
